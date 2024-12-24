@@ -113,10 +113,6 @@
         </form>
     </div>
 </div>
----
-version: 0.1
-prompt: generate the login portal of MSB Company
----
 <div class="min-h-screen flex items-center justify-center bg-background">
   <div class="bg-card shadow-lg rounded-lg p-8 max-w-sm w-full">
     <h2 class="text-2xl font-bold text-primary mb-6">MSB Company Login</h2>
