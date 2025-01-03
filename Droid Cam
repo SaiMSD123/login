@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en-US" class="ie8"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en-US"> <!--<![endif]-->
+<head>
+	<meta charset="UTF-8">
+	<title>DroidCam Client (Classic)</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel='stylesheet' id='wp-block-library-css'  href='https://www.dev47apps.com/wp-includes/css/dist/block-library/style.min.css?ver=5.1.8' type='text/css' media='all' />
+<link rel='stylesheet' id='material-custom-css'  href='https://www.dev47apps.com/wp-content/themes/material/stylesheets/styles.css?ver=5.1.8' type='text/css' media='all' />
+<link rel='stylesheet' id='material-main-css'  href='https://www.dev47apps.com/wp-content/themes/material/style.css?ver=5.1.8' type='text/css' media='all' />
+<body class="home page-template-default page">
+	<header class="site-header" role="banner">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-12 banner">
+					<img class="site-banner" src="//files.dev47apps.net/img/site-bg.jpg" alt="" />
+				</div><!-- /.col-xs-12 -->
+			</div><!-- /.row -->
+		</div> <!-- end banner -->
+		<div class="container header-contents">
+			<div class="row">
+				<div class="col-xs-9 sitelogo">
+					<div class="site-logo">
+						<a href="/" rel="home">Dev47Apps</a>
+					</div> <!-- end site-logo -->
+				</div> <!-- end col-xs-3 -->
+			</div> <!-- end row -->
+		</div> <!-- end container -->
+	</header> <!-- end site-header -->
+	<div class="container">
+	<div class="row">
+	<div class="main-content col-md-9" role="main">
+
+	<article id="post-63" class="post-63 post type-post status-publish format-standard hentry category-droidcam">
+	<!-- Article header -->
+	<header class="entry-header"> <h1>Windows</h1> </header>
+
+	<!-- Article content -->
+	<!-- https://files.dev47apps.net/win/DroidCam.Setup.6.5.2.exe -->
+	<div class="entry-content">
+		<div class="link" onclick="window.open('https://github.com/dev47apps/windows-releases/releases/download/win-6.5.2/DroidCam.Setup.6.5.2.exe','_blank');"><img src="//files.dev47apps.net/img/windows.png" width="64" style="margin:4px 4px 0 0;">
+<p style="color:#000; margin:0 0 4px 32px; font-size:16px;">DroidCam Client</p>
+<p>v6.5.2 Download</p>
+</div>
+<h5 style="margin-top:24px">Install Notes</h5>
+<p>Quit all chat programs to ensure a clean install and avoid reboots.<br />
+</p>
+<p>After installation, re-open chat programs (Skype, MS Teams, Zoom, ..), and these should recognize “DroidCam” as a webcam. You can also select DroidCam as a microphone.</p>
+<p>By default, &#8216;DroidCam Source 2&#8217; will output a light blue screen and &#8216;Source 3&#8217; will output an orange screen. The two video sources are there for better compatibility, you can use whichever one works.</p>
+<p><span class="ora" onclick="window.location.href='/droidcam/connect/';">Next: Connect the client and phone app &gt;</span></p>
+	</div> <!-- end entry-content -->
+	</article>
+
+	</div> <!-- end main-content -->
+	</div> <!-- end row -->
+	</div> <!-- end container -->
+	<footer class="site-footer">
+	<div class="container">
+		<div class="copyright col-md-9">
+			<div class="col-xs-8">
+				<p><a href="https://twitter.com/dev47apps" target="_blank"><img src="//files.dev47apps.net/img/twitter-follow.png" /></a></p>
+                        </div>
+
+		</div>
+	</div>
+</footer>
+
+	<div class="modal" style="margin:5% 4%;" id="variant">
+	<div class="modal-content col-xs-12 text-center" style="height:90%">
+	<h3>Please select your app variant</h3>
+	<br><br>
+	<div class="row">
+
+        <div class="col-md-4">&nbsp;</div>
+
+        <div class="col-md-2">
+	<a href="//droidcam.app">
+		<img src="//files.dev47apps.net/img/dobs-icon.png" width="48"><br>
+		<b>DroidCam<br>Webcam &amp; OBS Camera</b><br>
+		Android &amp; iOS
+	</a>
+	</div>
+
+        <div class="col-md-2">
+	<a href="/" onclick="save();">
+		<img src="//files.dev47apps.net/img/app_icon.png" width="48"><br>
+		<b>DroidCam/X <br> Classic</b><br>
+		Android
+	</a>
+	</div>
+
+	</div><!-- row -->
+	</div>
+	</div>
+	<script>
+	var modal = document.getElementById('variant');
+
+	var now = new Date();
+	var then = localStorage.variant ? Date.parse(localStorage.variant) : 0;
+	if ((now - then) > 1309630999) modal.style.display = 'block';
+
+	function save() {
+		modal.style.display = 'none';
+		localStorage['variant'] = now;
+	}
+	</script>
+</body>
+</html>
