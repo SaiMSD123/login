@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .search-bar {
+            margin-left: auto;
+            display: flex;
+        }
+        .search-bar input {
+            padding: 5px;
+            border: none;
+            border-radius: 2px;
+        }
+        .search-bar button {
+            padding: 5px 10px;
+            border: none;
+            background-color: #fff;
+            color: #ff0000;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        .video {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px;
+            width: calc(25% - 20px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .video img {
+            width: 100%;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+        .video-title {
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .video-info {
+            padding: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>YouTube Clone</h1>
+    <div class="search-bar">
+        <input type="text" placeholder="Search...">
+        <button>Search</button>
+    </div>
+</header>
+
+<div class="video-container">
+    <div class="video">
+        <img src="https://via.placeholder.com/300x200" alt="Video Thumbnail">
+        <div class="video-title">Video Title 1</div>
+        <div class="video-info">Channel Name • 1M views • 2 days ago</div>
+    </div>
+    <div class="video">
+        <img src="https://via.placeholder.com/300x200" alt="Video Thumbnail">
+        <div class="video-title">Video Title 2</div>
+        <div class="video-info">Channel Name • 500K views • 1 week ago</div>
+    </div>
+    <div class="video">
+        <img src="https://via.placeholder.com/300x200" alt="Video Thumbnail">
+        <div class="video-title">Video Title 3</div>
+        <div class="video-info">Channel Name • 250K views • 3 days ago</div>
+    </div>
+    <div class="video">
+        <img src="https://via.placeholder.com/300x200" alt="Video Thumbnail">
+        <div class="video-title">Video Title 4</div>
+        <div class="video-info">Channel Name • 1.5M views • 1 month ago</div>
+    </div>
+</div>
+
+</body>
+</html>
