@@ -1,0 +1,128 @@
+import React, { useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import RunawayButton from "../components/RunawayButton";
+
+export default function Home() {
+  const navigate = useNavigate();
+  const [clickCount, setClickCount] = useState(0);
+  const [showEmoji, setShowEmoji] = useState(false);
+
+  const handleYes = () => {
+    navigate("/result");
+  };
+
+  const handleNoAttempt = useCallback(() => {
+    setClickCount((prev) => prev + 1);
+    setShowEmoji(true);
+    setTimeout(() => setShowEmoji(false), 800);
+  }, []);
+
+  const taunts = [
+    "Nice try! 😏",
+    "You can't escape the truth!",
+    "Haha, keep trying! 🤣",
+    "The button is too fast for you!",
+    "Just click Yes already! 😂",
+    "Devika, accept it! 💀",
+    "That button doesn't like you!",
+    "Almost... NOT! 😜",
+  ];
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 overflow-hidden relative">
+      {/* Floating decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-16 h-16 rounded-full opacity-20"
+            style={{
+              background: i % 2 === 0 ? "hsl(330, 80%, 55%)" : "hsl(45, 95%, 55%)",
+              left: `${15 + i * 15}%`,
+              top: `${10 + (i % 3) * 30}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative z-10 text-center max-w-lg w-full"
+      >
+        <motion.div
+          animate={{ rotate: [0, 2, -2, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-6xl mb-6"
+        >
+          🤔
+        </motion.div>
+
+        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-3 tracking-tight leading-tight">
+          Is Devika
+          <span className="block text-primary">Mental Or Not?</span>
+        </h1>
+
+        <p className="text-muted-foreground text-lg mb-12 mt-4">
+          Please answer honestly, Devika 👇
+        </p>
+
+        <div className="flex items-center justify-center gap-8 relative min-h-[120px]">
+          {/* YES Button */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleYes}
+            className="px-12 py-4 bg-primary text-primary-foreground font-bold text-xl rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
+          >
+            Yes ✅
+          </motion.button>
+
+          {/* NO Button - runs away */}
+          <RunawayButton onAttempt={handleNoAttempt} />
+        </div>
+
+        {/* Taunt message */}
+        <AnimatePresence>
+          {clickCount > 0 && (
+            <motion.p
+              key={clickCount}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-8 text-lg font-semibold text-primary"
+            >
+              {taunts[(clickCount - 1) % taunts.length]}
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {/* Floating emoji on attempt */}
+        <AnimatePresence>
+          {showEmoji && (
+            <motion.div
+              initial={{ opacity: 1, y: 0, scale: 1 }}
+              animate={{ opacity: 0, y: -80, scale: 2 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="absolute left-1/2 top-0 text-4xl pointer-events-none"
+            >
+              😂
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
