@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEL QUIZ · Admin Panel</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+    body {
+      background: #eef2f7;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .admin-card {
+      max-width: 700px;
+      width: 100%;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.10);
+      padding: 2.2rem 2.5rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0b2b4a;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border-bottom: 2px solid #e6edf5;
+      padding-bottom: 0.8rem;
+      margin-bottom: 1.8rem;
+    }
+    h1 i { color: #2a7de1; }
+    .badge-admin {
+      background: #dce8f5;
+      color: #1a4a7a;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 1rem;
+      border-radius: 40px;
+      margin-left: 0.5rem;
+    }
+    .form-group { margin-bottom: 1.3rem; }
+    label {
+      font-weight: 500;
+      color: #1e3d60;
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.7rem 1.2rem;
+      border: 1px solid #d3e0ec;
+      border-radius: 60px;
+      background: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #2a7de1;
+      box-shadow: 0 0 0 3px rgba(42,125,225,0.15);
+    }
+    textarea {
+      border-radius: 24px;
+      resize: vertical;
+      min-height: 70px;
+    }
+    .btn {
+      border: none;
+      padding: 0.7rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: #1a4f8a;
+      color: white;
+      box-shadow: 0 4px 8px rgba(26,79,138,0.2);
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-primary:hover { background: #0f3e6e; transform: scale(0.98); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #b7cddf;
+      color: #1a3a5e;
+    }
+    .btn-outline:hover { background: #e6edf5; }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-top: 0.8rem;
+    }
+    .status-msg {
+      padding: 0.6rem 1.2rem;
+      border-radius: 60px;
+      background: #e8f0fe;
+      color: #144b7a;
+      font-size: 0.9rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .status-msg i { margin-right: 8px; }
+    .question-count {
+      font-size: 0.9rem;
+      color: #2a5e8a;
+      margin-top: 0.3rem;
+    }
+    .separator { border-top: 1px dashed #d6e3f0; margin: 1.5rem 0 1rem; }
+    .small-note { font-size: 0.8rem; color: #4d6e8f; opacity: 0.8; }
+    .admin-hint { background: #f4f9ff; padding: 0.8rem 1.2rem; border-radius: 40px; margin-top: 0.5rem; font-size: 0.85rem; color: #1d4a77; }
+    .nav-link {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1.5rem;
+      background: #eaf2fb;
+      border-radius: 60px;
+      color: #1a4a7a;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .nav-link:hover { background: #d4e2f5; }
+  </style>
+</head>
+<body>
+<div class="admin-card">
+  <h1><i class="fas fa-user-cog"></i> BEL QUIZ <span class="badge-admin">admin</span></h1>
+
+  <div class="form-group">
+    <label><i class="fas fa-question-circle"></i> प्रश्न / Question</label>
+    <textarea id="adminQuestion" placeholder="Enter question (Hindi or English)"></textarea>
+  </div>
+  <div class="form-group">
+    <label><i class="fas fa-list-ul"></i> विकल्प / Options (comma separated)</label>
+    <input id="adminOptions" placeholder="e.g. Option A, Option B, Option C, Option D">
+  </div>
+  <div class="form-group">
+    <label><i class="fas fa-check-circle"></i> सही उत्तर / Correct Answer</label>
+    <input id="adminAnswer" placeholder="exact option text">
+  </div>
+  <button class="btn btn-primary" id="addQuestionBtn"><i class="fas fa-plus-circle"></i> Add Question</button>
+
+  <div class="separator"></div>
+  <div class="flex-row">
+    <button class="btn btn-outline" id="resetQuestionsBtn"><i class="fas fa-undo-alt"></i> Reset All</button>
+    <span class="small-note" style="margin-left: auto;"><i class="far fa-clock"></i> admin only</span>
+  </div>
+
+  <div id="adminStatus" class="status-msg"><i class="fas fa-info-circle"></i> Ready</div>
+  <div class="question-count"><i class="fas fa-database"></i> <span id="questionCount">0</span> questions in system</div>
+  <div class="admin-hint"><i class="fas fa-lightbulb"></i> Questions are stored in your browser (localStorage). User panel will read from the same storage.</div>
+  
+  <a href="bel-quiz-user.html" class="nav-link"><i class="fas fa-arrow-right"></i> Go to User Panel</a>
+</div>
+
+<script>
+  (function() {
+    // ---------- STORAGE KEY ----------
+    const STORAGE_KEY = 'belQuizQuestions';
+
+    // DOM refs
+    const adminQuestion = document.getElementById('adminQuestion');
+    const adminOptions = document.getElementById('adminOptions');
+    const adminAnswer = document.getElementById('adminAnswer');
+    const addBtn = document.getElementById('addQuestionBtn');
+    const resetBtn = document.getElementById('resetQuestionsBtn');
+    const adminStatus = document.getElementById('adminStatus');
+    const questionCountSpan = document.getElementById('questionCount');
+
+    // ---------- helpers ----------
+    function loadQuestions() {
+      try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) { return []; }
+    }
+
+    function saveQuestions(questions) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+    }
+
+    function updateCount() {
+      const qs = loadQuestions();
+      questionCountSpan.textContent = qs.length;
+    }
+
+    function setAdminStatus(msg, isError = false) {
+      adminStatus.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i> ${msg}`;
+      adminStatus.style.background = isError ? '#fde8e8' : '#e8f0fe';
+    }
+
+    // ---------- ADD QUESTION ----------
+    function addQuestion() {
+      const text = adminQuestion.value.trim();
+      const optionsRaw = adminOptions.value.trim();
+      const answer = adminAnswer.value.trim();
+
+      if (!text) { setAdminStatus('❌ Please enter a question.', true); return; }
+      if (!optionsRaw) { setAdminStatus('❌ Enter options separated by comma.', true); return; }
+      if (!answer) { setAdminStatus('❌ Provide the correct answer.', true); return; }
+
+      const options = optionsRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      if (options.length < 2) { setAdminStatus('❌ At least 2 options required.', true); return; }
+      if (!options.includes(answer)) { setAdminStatus('❌ Correct answer must match one of the options.', true); return; }
+
+      const questions = loadQuestions();
+      const newQ = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        text: text,
+        options: options,
+        answer: answer
+      };
+      questions.push(newQ);
+      saveQuestions(questions);
+      updateCount();
+      setAdminStatus(`✅ Question added! (${questions.length} total)`);
+
+      // clear fields
+      adminQuestion.value = '';
+      adminOptions.value = '';
+      adminAnswer.value = '';
+    }
+
+    // ---------- RESET ----------
+    function resetQuestions() {
+      const qs = loadQuestions();
+      if (qs.length === 0) { setAdminStatus('ℹ️ No questions to reset.', false); return; }
+      if (confirm('Delete ALL questions? This cannot be undone.')) {
+        saveQuestions([]);
+        updateCount();
+        setAdminStatus('🔄 All questions cleared.');
+      }
+    }
+
+    // ---------- INIT ----------
+    updateCount();
+    setAdminStatus('📚 Ready. Add questions below.');
+
+    // event listeners
+    addBtn.addEventListener('click', addQuestion);
+    resetBtn.addEventListener('click', resetQuestions);
+
+    // quick add with Enter
+    [adminQuestion, adminOptions, adminAnswer].forEach(field => {
+      field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          addQuestion();
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
