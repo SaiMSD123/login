@@ -1,0 +1,446 @@
+/**
+ * IT Asset Local Storage Driver
+ * Enterprise-grade storage management for IT Asset Tracker
+ * Version: 1.0.0
+ */
+
+class AssetStorageDriver {
+    constructor() {
+        this.STORAGE_KEY = 'corp_assets';
+        this.initialized = false;
+        this.cache = null;
+        this.listeners = [];
+    }
+
+    /**
+     * Initialize the storage driver
+     * @returns {Promise<Array>} - Initial asset data
+     */
+    async init() {
+        try {
+            if (!this.initialized) {
+                const storedData = localStorage.getItem(this.STORAGE_KEY);
+                this.cache = storedData ? JSON.parse(storedData) : [];
+                this.initialized = true;
+                console.log(' Storage driver initialized with', this.cache.length, 'assets');
+            }
+            return this.cache;
+        } catch (error) {
+            console.error('Storage initialization failed:', error);
+            this.cache = [];
+            this.initialized = true;
+            return this.cache;
+        }
+    }
+
+    /**
+     * Get all assets
+     * @returns {Array} - All assets
+     */
+    getAllAssets() {
+        if (!this.initialized) {
+            console.warn('Storage not initialized. Auto-initializing...');
+            this.init();
+        }
+        return this.cache || [];
+    }
+
+    /**
+     * Get an asset by ID
+     * @param {number|string} id - Asset ID
+     * @returns {Object|null} - The asset or null if not found
+     */
+    getAssetById(id) {
+        const assets = this.getAllAssets();
+        return assets.find(asset => asset.id === id) || null;
+    }
+
+    /**
+     * Add a new asset
+     * @param {Object} asset - Asset object
+     * @returns {Object} - The added asset with ID
+     */
+    addAsset(asset) {
+        const assets = this.getAllAssets();
+        
+        if (!asset.id) {
+            asset.id = Date.now() + Math.floor(Math.random() * 1000);
+        }
+        
+        const newAsset = {
+            ...asset,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        assets.push(newAsset);
+        this._save(assets);
+        this._notify('add', newAsset);
+        return newAsset;
+    }
+
+    /**
+     * Add multiple assets (bulk import)
+     * @param {Array} assets - Array of asset objects
+     * @returns {Array} - The added assets
+     */
+    addAssets(assets) {
+        const existingAssets = this.getAllAssets();
+        
+        const newAssets = assets.map(asset => ({
+            ...asset,
+            id: asset.id || Date.now() + Math.floor(Math.random() * 1000) + Math.floor(Math.random() * 1000),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        }));
+        
+        const allAssets = [...existingAssets, ...newAssets];
+        this._save(allAssets);
+        this._notify('add', newAssets);
+        return newAssets;
+    }
+
+    /**
+     * Update an existing asset
+     * @param {number|string} id - Asset ID
+     * @param {Object} updates - Updated fields
+     * @returns {Object|null} - The updated asset or null if not found
+     */
+    updateAsset(id, updates) {
+        const assets = this.getAllAssets();
+        const index = assets.findIndex(asset => asset.id === id);
+        
+        if (index === -1) {
+            console.warn(`Asset ${id} not found for update`);
+            return null;
+        }
+        
+        const updatedAsset = {
+            ...assets[index],
+            ...updates,
+            updatedAt: new Date().toISOString()
+        };
+        
+        assets[index] = updatedAsset;
+        this._save(assets);
+        this._notify('update', updatedAsset);
+        return updatedAsset;
+    }
+
+    /**
+     * Delete an asset by ID
+     * @param {number|string} id - Asset ID
+     * @returns {boolean} - True if deleted
+     */
+    deleteAsset(id) {
+        const assets = this.getAllAssets();
+        const filteredAssets = assets.filter(asset => asset.id !== id);
+        
+        if (filteredAssets.length === assets.length) {
+            console.warn(` Asset ${id} not found for deletion`);
+            return false;
+        }
+        
+        this._save(filteredAssets);
+        this._notify('delete', id);
+        return true;
+    }
+
+    /**
+     * Delete multiple assets
+     * @param {Array} ids - Array of asset IDs
+     * @returns {number} - Number of assets deleted
+     */
+    deleteAssets(ids) {
+        const assets = this.getAllAssets();
+        const idSet = new Set(ids);
+        const filteredAssets = assets.filter(asset => !idSet.has(asset.id));
+        
+        const deletedCount = assets.length - filteredAssets.length;
+        if (deletedCount > 0) {
+            this._save(filteredAssets);
+            this._notify('delete', ids);
+        }
+        return deletedCount;
+    }
+
+    /**
+     * Search assets
+     * @param {Object} searchParams - Search parameters
+     * @returns {Array} - Filtered assets
+     */
+    searchAssets(searchParams = {}) {
+        const assets = this.getAllAssets();
+        
+        return assets.filter(asset => {
+            // Department filter
+            if (searchParams.dept && asset.dept !== searchParams.dept) {
+                return false;
+            }
+            
+            // Device type filter
+            if (searchParams.deviceType && asset.deviceType !== searchParams.deviceType) {
+                return false;
+            }
+            
+            // Network filter
+            if (searchParams.network && asset.network !== searchParams.network) {
+                return false;
+            }
+            
+            // Employee ID filter
+            if (searchParams.empId && !asset.empId.toLowerCase().includes(searchParams.empId.toLowerCase())) {
+                return false;
+            }
+            
+            // Search term
+            if (searchParams.searchTerm) {
+                const term = searchParams.searchTerm.toLowerCase();
+                const searchableFields = [
+                    asset.empId, asset.empName, asset.loginId, asset.dept,
+                    asset.assetId, asset.assetNum, asset.deviceType,
+                    asset.modelName, asset.ipAddress
+                ];
+                
+                const found = searchableFields.some(field => 
+                    field && field.toLowerCase().includes(term)
+                );
+                
+                if (!found) return false;
+            }
+            
+            return true;
+        });
+    }
+
+    /**
+     * Get comprehensive statistics
+     * @returns {Object} - Statistics object
+     */
+    getStatistics() {
+        const assets = this.getAllAssets();
+        const stats = {
+            total: assets.length,
+            byDeviceType: {},
+            byDepartment: {},
+            byNetwork: { Intranet: 0, Internet: 0 },
+            byAntivirus: { Yes: 0, No: 0, 'N/A': 0 },
+            totalWithAV: 0,
+            totalWithoutAV: 0,
+            totalSharedSystems: 0,
+            totalPersonalSystems: 0,
+            timestamp: new Date().toISOString()
+        };
+        
+        assets.forEach(asset => {
+            stats.byDeviceType[asset.deviceType] = (stats.byDeviceType[asset.deviceType] || 0) + 1;
+            stats.byDepartment[asset.dept] = (stats.byDepartment[asset.dept] || 0) + 1;
+            
+            if (asset.network === 'Intranet') stats.byNetwork.Intranet++;
+            else if (asset.network === 'Internet') stats.byNetwork.Internet++;
+            
+            if (asset.antivirus === 'Yes') {
+                stats.byAntivirus.Yes++;
+                stats.totalWithAV++;
+            } else if (asset.antivirus === 'No') {
+                stats.byAntivirus.No++;
+                stats.totalWithoutAV++;
+            } else {
+                stats.byAntivirus['N/A']++;
+            }
+            
+            if (asset.empId === 'N/A' || asset.empId === 'Common System') {
+                stats.totalSharedSystems++;
+            } else {
+                stats.totalPersonalSystems++;
+            }
+        });
+        
+        return stats;
+    }
+
+    /**
+     * Export to JSON
+     * @returns {string} - JSON string
+     */
+    exportToJSON() {
+        const assets = this.getAllAssets();
+        return JSON.stringify(assets, null, 2);
+    }
+
+    /**
+     * Import from JSON
+     * @param {string} jsonString - JSON string
+     * @param {boolean} merge - Merge or replace
+     * @returns {Array} - Imported assets
+     */
+    importFromJSON(jsonString, merge = false) {
+        try {
+            const importedAssets = JSON.parse(jsonString);
+            
+            if (!Array.isArray(importedAssets)) {
+                throw new Error('Invalid data format: Expected an array');
+            }
+            
+            if (merge) {
+                const existingAssets = this.getAllAssets();
+                const existingIds = new Set(existingAssets.map(a => a.id));
+                const newAssets = importedAssets.filter(a => !existingIds.has(a.id));
+                const allAssets = [...existingAssets, ...newAssets];
+                this._save(allAssets);
+                return allAssets;
+            } else {
+                this._save(importedAssets);
+                return importedAssets;
+            }
+        } catch (error) {
+            console.error(' Import failed:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Backup to file
+     * @param {string} filename - Backup filename
+     */
+    backupToFile(filename = `asset_backup_${new Date().toISOString().split('T')[0]}.json`) {
+        const data = this.exportToJSON();
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        console.log(` Backup saved: ${filename}`);
+    }
+
+    /**
+     * Restore from file
+     * @param {File} file - JSON file
+     * @param {boolean} merge - Merge or replace
+     * @returns {Promise<Array>} - Restored data
+     */
+    async restoreFromFile(file, merge = false) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                try {
+                    const jsonString = event.target.result;
+                    const data = this.importFromJSON(jsonString, merge);
+                    resolve(data);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsText(file);
+        });
+    }
+
+    /**
+     * Get storage stats
+     * @returns {Object} - Storage usage stats
+     */
+    getStorageStats() {
+        const data = localStorage.getItem(this.STORAGE_KEY) || '';
+        const size = new Blob([data]).size;
+        const itemCount = this.getAllAssets().length;
+        const sizeInKB = (size / 1024).toFixed(2);
+        const sizeInMB = (size / (1024 * 1024)).toFixed(2);
+        
+        return {
+            itemCount,
+            bytes: size,
+            kilobytes: parseFloat(sizeInKB),
+            megabytes: parseFloat(sizeInMB),
+            formattedSize: size > 1024 * 1024 
+                ? `${sizeInMB} MB` 
+                : size > 1024 
+                ? `${sizeInKB} KB` 
+                : `${size} bytes`
+        };
+    }
+
+    /**
+     * Clear all data
+     * @returns {boolean} - True if successful
+     */
+    clear() {
+        try {
+            localStorage.removeItem(this.STORAGE_KEY);
+            this.cache = [];
+            this._notify('clear');
+            console.log('Storage cleared');
+            return true;
+        } catch (error) {
+            console.error(' Failed to clear storage:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Register a listener for storage changes
+     * @param {Function} listener - Callback function
+     * @returns {Function} - Unsubscribe function
+     */
+    onChanges(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    /**
+     * Private: Save data to localStorage
+     * @param {Array} data - Data to save
+     * @private
+     */
+    _save(data) {
+        try {
+            const jsonData = JSON.stringify(data);
+            localStorage.setItem(this.STORAGE_KEY, jsonData);
+            this.cache = data;
+            console.log(`Saved ${data.length} assets`);
+        } catch (error) {
+            if (error.name === 'QuotaExceededError') {
+                console.error(' Storage quota exceeded!');
+                throw new Error('Storage full. Please delete some assets.');
+            }
+            console.error(' Save failed:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Private: Notify listeners
+     * @param {string} action - Action type
+     * @param {*} data - Action data
+     * @private
+     */
+    _notify(action, data) {
+        this.listeners.forEach(listener => {
+            try {
+                listener({ action, data, timestamp: new Date().toISOString() });
+            } catch (error) {
+                console.error(' Listener error:', error);
+            }
+        });
+    }
+}
+
+// Create singleton instance
+const storageDriver = new AssetStorageDriver();
+
+// Export for use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = storageDriver;
+} else {
+    window.storageDriver = storageDriver;
+}
